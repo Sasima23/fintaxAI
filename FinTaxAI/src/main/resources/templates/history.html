@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculation History - FinTax AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/"><strong>FinTax AI</strong></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/calculator">Calculator</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/history">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/chatbot">AI Assistant</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Calculation History</h2>
+        
+        <div th:if="${calculations.isEmpty()}" class="alert alert-info text-center">
+            <p class="mb-0">No calculations yet. <a href="/calculator" class="alert-link">Start calculating</a></p>
+        </div>
+        
+        <div th:unless="${calculations.isEmpty()}" class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Tax Type</th>
+                        <th>Name</th>
+                        <th>Tax Amount</th>
+                        <th>Effective Rate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="calc : ${calculations}">
+                        <td th:text="${#temporals.format(calc.calculatedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${calc.taxType == 'Income Tax'} ? 'bg-primary' : 
+                                                   ${calc.taxType == 'Corporate Tax'} ? 'bg-success' : 
+                                                   ${calc.taxType == 'Sales/GST Tax'} ? 'bg-warning' : 'bg-info'"
+                                  th:text="${calc.taxType}"></span>
+                        </td>
+                        <td th:text="${calc.userName ?: 'N/A'}"></td>
+                        <td th:text="'₹' + ${#numbers.formatDecimal(calc.taxAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${#numbers.formatDecimal(calc.effectiveRate, 0, 2)} + '%'"></td>
+                        <td>
+                            <a th:href="@{/tax/download/{id}(id=${calc.id})}" class="btn btn-sm btn-success">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                </svg>
+                                PDF
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 FinTax AI - Smart Tax Calculator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
